@@ -6,11 +6,14 @@ on:
       - main
   workflow_dispatch:
 
-permissions: write-all
+permissions: read-all
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout this repo
         uses: actions/checkout@v4
@@ -22,7 +25,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'Build Inventory Image'
+      - name: 'Build and Push Image'
         run: |
-          docker build . --tag ghcr.io/govuk-digital-backbone/govuk-notify-smtp-relay:latest
-          docker push ghcr.io/govuk-digital-backbone/govuk-notify-smtp-relay:latest
+          # Force everything to lowercase
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_ID=ghcr.io/$OWNER/govuk-notify-smtp-relay
+          VERSION=latest
+          echo "Building $IMAGE_ID:$VERSION"
+          docker build . --tag $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION

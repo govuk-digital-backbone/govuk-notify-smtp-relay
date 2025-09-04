@@ -14,9 +14,18 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", 2525))
 NOTIFY_API_KEY = os.getenv("NOTIFY_API_KEY", None)
 NOTIFY_TEMPLATE_ID = os.getenv("NOTIFY_TEMPLATE_ID", None)
 
+NOTIFY_BASE_URL = os.getenv(
+    "NOTIFY_BASE_URL",
+    "https://api.notifications.service.gov.uk"
+)
+
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL", None)
 
-notifications_client = NotificationsAPIClient(NOTIFY_API_KEY) if NOTIFY_API_KEY else None
+notifications_client = (
+    NotificationsAPIClient(NOTIFY_API_KEY, base_url=NOTIFY_BASE_URL)
+    if NOTIFY_API_KEY
+    else None
+)
 
 def is_private_ip(ip):
     if not ip:
